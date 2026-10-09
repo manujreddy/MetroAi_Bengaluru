@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MetroAI Bengaluru - Smart Metro Ticketing</title>
+    <meta
+      name="description"
+      content="AI-powered metro ticketing platform for Bengaluru with nearest station search, last mile connectivity, and smart fare insights."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Bricolage+Grotesque:opsz,wght@12..96,300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">M</div>
+        <div>
+          <strong>MetroAI Bengaluru</strong>
+          <small>National Level Hackathon Showcase</small>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="#planner">Planner</a>
+        <a href="#metro-map">Map</a>
+        <a href="#ai">AI Features</a>
+        <a href="#ticketing">Ticketing</a>
+        <a href="#lines">Lines</a>
+      </nav>
+      <button class="ghost" id="demoFill" type="button">Demo Fill</button>
+    </header>
+
+    <main>
+      <section class="hero" id="top">
+        <div class="hero-copy" data-animate>
+          <p class="tag">AI-Enabled Metro Ticketing</p>
+          <h1>Plan smarter trips across Bengaluru in seconds.</h1>
+          <p class="subhead">
+            Enter any Bengaluru location and MetroAI will detect the nearest
+            metro stations, show last mile options with BMTC routes and fares,
+            and generate smart ticket insights.
+          </p>
+          <div class="hero-cta">
+            <a class="primary" href="#planner">Plan My Trip</a>
+          </div>
+          <div class="pill-row">
+            <span>Purple Line: Operational</span>
+            <span>Green Line: Operational</span>
+            <span>Yellow Line: Operational</span>
+            <span>Blue Line: Operational</span>
+            <span>Pink Line: Operational</span>
+            <span>Maps API: Live Geocoding</span>
+          </div>
+        </div>
+        <div class="hero-card" data-animate>
+          <h3>Live Metro Snapshot</h3>
+          <div class="snapshot">
+            <div>
+              <p class="label">Active Lines</p>
+              <p class="value">5</p>
+            </div>
+            <div>
+              <p class="label">Stations Indexed</p>
+              <p class="value" id="stationCount">83</p>
+            </div>
+            <div>
+              <p class="label">Last Mile Modes</p>
+              <p class="value">BMTC, Walk, Cab, Auto</p>
+            </div>
+          </div>
+          <div class="notice">
+            Powered by OpenStreetMap geocoding with local station intelligence.
+          </div>
+        </div>
+      </section>
+
+      <section class="planner" id="planner">
+        <div class="section-head" data-animate>
+          <h2>AI Trip Planner</h2>
+          <p>
+            Locate the nearest metro stations for both start and destination in
+            Bengaluru. We calculate station distance, fare estimates, and last
+            mile connectivity in real time.
+          </p>
+        </div>
+        <div class="planner-grid">
+          <form class="planner-form" id="tripForm" data-animate>
+            <label>
+              Starting location
+              <input
+                id="startInput"
+                type="text"
+                placeholder="e.g., Indiranagar, Bengaluru"
+                required
+              />
+            </label>
+            <label>
+              Destination
+              <input
+                id="endInput"
+                type="text"
+                placeholder="e.g., Manyata Tech Park"
+                required
+              />
+            </label>
+            <div class="toggle-row">
+              <label class="switch">
+                <input id="aiToggle" type="checkbox" checked />
+                <span class="slider"></span>
+              </label>
+              <span>Enable AI guidance</span>
+            </div>
+            <button class="primary full" type="submit">
+              Find Nearest Stations
+            </button>
+            <p class="helper">
+              Supports any Bengaluru location. Uses map API geocoding and
+              station proximity models.
+            </p>
+          </form>
+
+          <div class="planner-results" data-animate>
+            <div class="result-card">
+              <h3>Nearest Stations</h3>
+              <div class="result-lines">
+                <div>
+                  <p class="label">Start Station</p>
+                  <p class="value" id="startStation">Awaiting input</p>
+                </div>
+                <div>
+                  <p class="label">Destination Metro (Nearest)</p>
+                  <p class="value" id="endStation">Awaiting input</p>
+                </div>
+              </div>
+              <div class="result-lines">
+                <div>
+                  <p class="label">Metro Distance</p>
+                  <p class="value" id="stationDistance">-</p>
+                </div>
+                <div>
+                  <p class="label">Metro Fare Estimate</p>
+                  <p class="value" id="fareEstimate">-</p>
+                </div>
+              </div>
+              <div class="result-lines">
+                <div>
+                  <p class="label">Start Access Distance</p>
+                  <p class="value" id="startAccessDistance">-</p>
+                </div>
+                <div>
+                  <p class="label">Destination Access Distance</p>
+                  <p class="value" id="endAccessDistance">-</p>
+                </div>
+              </div>
+            </div>
+            <div class="result-card">
+              <h3>Route Summary</h3>
+              <div id="routeSummary" class="route-summary">
+                Plan a trip to see the recommended route.
+              </div>
+            </div>
+            <div class="result-card">
+              <h3>Last Mile Connectivity</h3>
+              <div id="lastMileOptions" class="option-list">
+                <div class="option muted">Last mile options will appear here.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="metro-map" id="metro-map">
+        <div class="section-head" data-animate>
+          <h2>Metro Map 2025</h2>
+          <p>
+            Visual reference map for the operational Blue and Pink lines with
+            interchange highlights.
+          </p>
+        </div>
+        <figure class="map-frame" data-animate>
+          <img
+            src="metro-map-2025.png"
+            alt="Bengaluru Metro 2025 map showing Blue and Pink lines"
+          />
+          <figcaption class="map-caption">
+            Add the latest Namma Metro map image at
+            <span class="mono">metro-map-2025.png</span>.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="ai-section" id="ai">
+        <div class="section-head" data-animate>
+          <h2>AI Features Built In</h2>
+          <p>
+            MetroAI blends location intelligence with explainable AI to make
+            ticketing faster, fairer, and more sustainable.
+          </p>
+        </div>
+        <div class="ai-grid">
+          <div class="ai-card" data-animate>
+            <h3>Smart Route Insights</h3>
+            <p>
+              Predicts the quickest line, highlights interchange points, and
+              estimates in-station wait time using peak-hour models.
+            </p>
+          </div>
+          <div class="ai-card" data-animate>
+            <h3>Dynamic Fare Advisor</h3>
+            <p>
+              Recommends the best ticket type based on trip length, crowd level,
+              and travel frequency.
+            </p>
+          </div>
+          <div class="ai-card" data-animate>
+            <h3>Last Mile Optimizer</h3>
+            <p>
+              Surfaces BMTC bus routes, walking distance, and cab availability
+              with cost and time estimates.
+            </p>
+          </div>
+          <div class="ai-card" data-animate>
+            <h3>Green Impact Score</h3>
+            <p>
+              Shows carbon savings against private vehicles and nudges toward
+              shared mobility.
+            </p>
+          </div>
+        </div>
+        <div class="ai-insights" data-animate>
+          <h3>Live AI Insight</h3>
+          <div id="aiInsight" class="insight-box">
+            Enter your trip to generate live AI guidance.
+          </div>
+        </div>
+      </section>
+
+      <section class="ticketing" id="ticketing">
+        <div class="section-head" data-animate>
+          <h2>Smart Ticketing</h2>
+          <p>
+            Complete your booking with AI-optimized fares, live QR preview, and
+            secure payment placeholders.
+          </p>
+        </div>
+        <div class="ticket-grid">
+          <form class="ticket-form" id="ticketForm" data-animate>
+            <label>
+              Ticket type
+              <select id="ticketType">
+                <option value="single">Single Journey</option>
+                <option value="return">Return Journey</option>
+                <option value="day">Day Pass</option>
+              </select>
+            </label>
+            <label>
+              Passengers
+              <input id="passengers" type="number" min="1" max="6" value="1" />
+            </label>
+            <label>
+              Trips today (AI suggestion)
+              <input id="tripCount" type="range" min="1" max="6" value="2" />
+              <span id="tripCountValue">2</span>
+            </label>
+            <label>
+              Payment method
+              <select id="paymentMethod">
+                <option value="wallet">Metro Wallet (Offline Ready)</option>
+                <option value="upi">UPI</option>
+                <option value="debit">Debit Card</option>
+                <option value="credit">Credit Card</option>
+                <option value="netbanking">Net Banking</option>
+              </select>
+            </label>
+            <div class="station-change">
+              <div class="station-change-head">
+                <p class="label">Change stations for this ticket</p>
+                <button class="outline small" id="swapStations" type="button">
+                  Swap
+                </button>
+              </div>
+              <div class="station-grid">
+                <label>
+                  From station
+                  <select id="ticketStartStation"></select>
+                </label>
+                <label>
+                  To station
+                  <select id="ticketEndStation"></select>
+                </label>
+              </div>
+              <p class="helper">
+                Use this if you want a different metro station than the nearest suggestion.
+              </p>
+            </div>
+            <button class="primary full" type="submit">
+              Buy Ticket & Generate QR
+            </button>
+            <p class="helper">
+              AI will recommend the best fare based on your latest trip plan.
+            </p>
+          </form>
+          <div class="ticket-preview" data-animate>
+            <div class="ticket-card">
+              <div>
+                <p class="label">MetroAI Ticket</p>
+                <p class="value" id="ticketTitle">Single Journey</p>
+              </div>
+              <div>
+                <p class="label">Estimated Fare</p>
+                <p class="value" id="ticketFare">-</p>
+              </div>
+              <div>
+                <p class="label">QR Token</p>
+                <p class="value mono" id="ticketToken">METRO-AI-READY</p>
+              </div>
+            </div>
+            <div class="qr-block">
+              <p class="label">Metro QR Code</p>
+              <div class="qr-wrap">
+                <div id="qrGrid" class="qr-grid" aria-label="Metro ticket QR code"></div>
+                <div class="qr-meta">
+                  <div>
+                    <p class="label">Server Receipt</p>
+                    <p class="value mono" id="serverReceipt">-</p>
+                  </div>
+                  <div>
+                    <p class="label">Sync Status</p>
+                    <p class="value" id="syncStatus">Awaiting purchase</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ticket-meta">
+              <div>
+                <p class="label">AI Suggestion</p>
+                <p class="value" id="ticketSuggestion">Plan a trip to get smart suggestions.</p>
+              </div>
+              <div>
+                <p class="label">Green Score</p>
+                <p class="value" id="greenScore">-</p>
+              </div>
+              <div>
+                <p class="label">Eco Reward</p>
+                <p class="value" id="ecoReward">Plan a trip to see eco rewards.</p>
+              </div>
+            </div>
+            <div class="ticket-status" id="ticketStatus">
+              Log in to unlock wallet rewards and offline ticketing.
+            </div>
+          </div>
+          <div class="auth-card" data-animate>
+            <h3>Metro Account</h3>
+            <form class="auth-form" id="loginForm">
+              <label>
+                Full name
+                <input
+                  id="loginName"
+                  type="text"
+                  placeholder="e.g., Asha Kumar"
+                  required
+                />
+              </label>
+              <label>
+                Mobile number
+                <input id="loginPhone" type="tel" placeholder="10-digit mobile" required />
+              </label>
+              <button class="primary full" type="submit">Login (Mock)</button>
+            </form>
+            <div class="login-status" id="loginStatus">
+              Not logged in. Login required to use Metro Wallet.
+            </div>
+            <button class="outline full is-hidden" id="logoutButton" type="button">
+              Logout
+            </button>
+            <p class="helper">Login is stored locally for this demo device.</p>
+          </div>
+          <div class="wallet-card" id="walletCard" data-animate>
+            <h3>Metro Wallet</h3>
+            <div class="wallet-lock" id="walletLock">
+              Login required to use Metro Wallet and earn eco rewards.
+            </div>
+            <div class="wallet-balance">
+              <div>
+                <p class="label">Balance</p>
+                <p class="value" id="walletBalance">Rs 0</p>
+              </div>
+              <div>
+                <p class="label">Total Rewards Earned</p>
+                <p class="value" id="walletRewardsTotal">Rs 0</p>
+              </div>
+            </div>
+            <div class="wallet-status">
+              <span class="status" id="walletNetwork">Offline</span>
+              <span class="muted" id="walletSync">Not synced yet</span>
+            </div>
+            <label>
+              Top up amount
+              <input id="topupAmount" type="number" min="50" step="50" value="200" />
+            </label>
+            <div class="wallet-actions">
+              <button class="primary full" id="topupButton" type="button">
+                Top Up (Online)
+              </button>
+            </div>
+            <p class="helper">
+              Add balance when you are online. Wallet balance is stored locally for offline trips
+              and syncs when you reconnect.
+            </p>
+            <div class="wallet-log" id="walletLog">
+              <div class="option muted">No wallet activity yet.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lines" id="lines">
+        <div class="section-head" data-animate>
+          <h2>Lines At A Glance</h2>
+          <p>
+            Purple, Green, Yellow, Blue, and Pink Lines are operational today.
+          </p>
+        </div>
+        <div class="line-grid" data-animate>
+          <div class="line-card purple">
+            <h3>Purple Line</h3>
+            <p class="muted">East-West corridor</p>
+            <ul id="purpleLineList"></ul>
+          </div>
+          <div class="line-card green">
+            <h3>Green Line</h3>
+            <p class="muted">North-South corridor</p>
+            <ul id="greenLineList"></ul>
+          </div>
+          <div class="line-card yellow">
+            <h3>Yellow Line</h3>
+            <p class="muted">South to Central corridor</p>
+            <ul id="yellowLineList"></ul>
+          </div>
+          <div class="line-card blue">
+            <h3>Blue Line</h3>
+            <p class="muted">North-East to Airport corridor</p>
+            <ul id="blueLineList"></ul>
+          </div>
+          <div class="line-card pink">
+            <h3>Pink Line</h3>
+            <p class="muted">North-West to South corridor</p>
+            <ul id="pinkLineList"></ul>
+          </div>
+        </div>
+        <div class="interchange-card" data-animate>
+          <div class="interchange-head">
+            <h3>Interchange Stations</h3>
+            <p class="muted">Switch lines quickly at these key hubs.</p>
+          </div>
+          <div id="interchangeList" class="interchange-list">
+            <div class="option muted">Interchanges will load here.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Demo platform for national level hackathon. BMTC routes and fares shown
+        are representative for demo purposes. Integrate official feeds for
+        production use.
+      </p>
+    </footer>
+  </body>
+</html>
